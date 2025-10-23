@@ -1,0 +1,53 @@
+---
+- name: Provision 100 OpenShift Virtualization VMs using Template
+  hosts: localhost
+  connection: local
+  gather_facts: no
+  vars_files:
+    - vars/osv_vms.yml
+
+#  tasks:
+#    - name: Fail if KUBECONFIG is not set
+#      ansible.builtin.assert:
+#        that:
+#          - ansible_env.KUBECONFIG is defined
+#        fail_msg: "Environment variable KUBECONFIG must be set for kubernetes.core.k8s to authenticate."
+#      run_once: true
+
+#    - name: Read SSH Public Key for Cloud-Init
+#      ansible.builtin.slurp:
+#        src: "{{ cloud_init_pubkey_path }}"
+#      register: ssh_key_content
+#      run_once: true
+
+    - name: Create Multiple OpenShift Virtual Machines from Template
+      kubernetes.core.k8s:
+        state: present
+        namespace: "{{ ocp_namespace }}"
+        # Deploy the manifest using the template lookup
+        definition: "{{ lookup('template', 'templates/vm-manifest.yml.j2') }}"
+      loop: "{{ vm_names }}"
+      loop_control:
+        loop_var: item
+        # Use an index to calculate the IP address
+        index_var: vm_index
+      vars:
+        # Calculate the IP address for the current VM based on its index:
+        # 1. Get the starting IP base (e.g., 10.6.121.51/32)
+        # 2. Add the current loop index (0 to 99) to the address
+        # 3. Append the correct CIDR mask (/23)
+        current_vm_ip: >
+          {{ network_cidr | ipaddr('host') | ipaddr(ip_start_octet + vm_index) ~ '/' ~ network_cidr | ipaddr('prefix') }}
+      register: ocv_vm_deploy_results
+      # RECOMMENDED: Control concurrency to avoid overwhelming the API server
+      # Run 5 deployments concurrently
+      throttle: 5
+
+      # Or, to run a block of 5, wait for them, then run the next block of 5:
+      # serial: 5 
+
+    - name: Display VM Creation Status
+      ansible.builtin.debug:
+        msg: "Started creation of VM '{{ item.item }}' (Changed: {{ item.changed }})"
+      loop: "{{ ocv_vm_deploy_results.results }}"
+      when: item.changed
