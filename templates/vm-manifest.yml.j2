@@ -1,0 +1,198 @@
+apiVersion: kubevirt.io/v1
+kind: VirtualMachine
+metadata:
+  annotations:
+    kubemacpool.io/transaction-timestamp: '2025-10-23T17:39:45.225399221Z'
+    vm.kubevirt.io/validations: |
+      [
+        {
+          "name": "minimal-required-memory",
+          "path": "jsonpath::.spec.domain.memory.guest",
+          "rule": "integer",
+          "message": "This VM requires more memory.",
+          "min": 1610612736
+        }
+      ]
+  creationTimestamp: '2025-10-23T17:39:45Z'
+  generation: 1
+  labels:
+    app: rhel9-from-template
+    kubevirt.io/dynamic-credentials-support: 'true'
+    vm.kubevirt.io/template: rhel9-server-large
+    vm.kubevirt.io/template.namespace: openshift
+    vm.kubevirt.io/template.revision: '1'
+    vm.kubevirt.io/template.version: v0.34.0
+  managedFields:
+    - apiVersion: kubevirt.io/v1
+      fieldsType: FieldsV1
+      fieldsV1:
+        'f:metadata':
+          'f:annotations':
+            .: {}
+            'f:kubemacpool.io/transaction-timestamp': {}
+            'f:vm.kubevirt.io/validations': {}
+          'f:labels':
+            .: {}
+            'f:app': {}
+            'f:kubevirt.io/dynamic-credentials-support': {}
+            'f:vm.kubevirt.io/template': {}
+            'f:vm.kubevirt.io/template.namespace': {}
+            'f:vm.kubevirt.io/template.revision': {}
+            'f:vm.kubevirt.io/template.version': {}
+        'f:spec':
+          .: {}
+          'f:dataVolumeTemplates': {}
+          'f:runStrategy': {}
+          'f:template':
+            .: {}
+            'f:metadata':
+              .: {}
+              'f:annotations':
+                .: {}
+                'f:vm.kubevirt.io/flavor': {}
+                'f:vm.kubevirt.io/os': {}
+                'f:vm.kubevirt.io/workload': {}
+              'f:creationTimestamp': {}
+              'f:labels':
+                .: {}
+                'f:kubevirt.io/domain': {}
+                'f:kubevirt.io/size': {}
+            'f:spec':
+              .: {}
+              'f:architecture': {}
+              'f:domain':
+                .: {}
+                'f:cpu':
+                  .: {}
+                  'f:cores': {}
+                  'f:sockets': {}
+                  'f:threads': {}
+                'f:devices':
+                  .: {}
+                  'f:disks': {}
+                  'f:interfaces': {}
+                  'f:networkInterfaceMultiqueue': {}
+                  'f:rng': {}
+                'f:features':
+                  .: {}
+                  'f:acpi': {}
+                  'f:smm':
+                    .: {}
+                    'f:enabled': {}
+                'f:firmware':
+                  .: {}
+                  'f:bootloader':
+                    .: {}
+                    'f:efi': {}
+                'f:machine':
+                  .: {}
+                  'f:type': {}
+                'f:memory':
+                  .: {}
+                  'f:guest': {}
+                'f:resources': {}
+              'f:hostname': {}
+              'f:networks': {}
+              'f:terminationGracePeriodSeconds': {}
+              'f:volumes': {}
+      manager: kubectl-create
+      operation: Update
+      time: '2025-10-23T17:39:45Z'
+  name: {{ item }}
+  namespace: {{ ocp_namespace }}
+  uid: 5836ff43-2ef8-486f-b20a-a9efa676f64a
+spec:
+  dataVolumeTemplates:
+    - apiVersion: cdi.kubevirt.io/v1beta1
+      kind: DataVolume
+      metadata:
+        creationTimestamp: null
+        name: {{ item }}-dv
+      spec:
+      spec:
+        sourceRef:
+          kind: DataSource
+          name: rhel9 # {{ vm_template_name }}" # Source template name
+          namespace: openshift-virtualization-os-images
+        storage:
+          resources:
+            requests:
+              storage: 30Gi
+          storageClassName: {{ vm_storage_class }}
+  runStrategy: RerunOnFailure
+  template:
+    metadata:
+      annotations:
+        vm.kubevirt.io/flavor: large
+        vm.kubevirt.io/os: rhel9
+        vm.kubevirt.io/workload: server
+      creationTimestamp: null
+      labels:
+        kubevirt.io/domain: {{ item }}
+        kubevirt.io/size: large
+    spec:
+      architecture: amd64
+      domain:
+        cpu:
+          cores: 1
+          sockets: {{ vm_cpu_cores }}
+          threads: 1
+        devices:
+          disks:
+            - disk:
+                bus: virtio
+              name: rootdisk
+            - disk:
+                bus: virtio
+              name: cloudinitdisk
+          interfaces:
+            - bridge: {}
+              # macAddress: '02:d4:03:00:00:0c'
+              model: virtio
+              name: default
+              state: up
+          networkInterfaceMultiqueue: true
+          rng: {}
+        features:
+          acpi: {}
+          smm:
+            enabled: true
+        firmware:
+          bootloader:
+            efi: {}
+        machine:
+          type: pc-q35-rhel9.6.0
+        memory:
+          guest: {{ vm_memory }}
+        resources: {}
+      # hostname: {{ item }}
+      networks:
+        - multus:
+            networkName: default/localnet-network
+          name: default
+      terminationGracePeriodSeconds: 180
+      volumes:
+        - dataVolume:
+            name: {{ item }}-dv
+          name: rootdisk
+        - cloudInitNoCloud:
+            networkData: |
+              ethernets:
+                eth0:
+                  addresses:
+                    - {{ current_vm_ip }}
+                  gateway4: {{ vm_ip_gateway }}
+                  nameservers:
+                    search: [{{ dns_search_domain }}]
+                    addresses: [{{ dns_server }}] 
+              version: 2
+            userData: |-
+              #cloud-config
+              user: {{ cloud_init_user }}
+              password: r3dh4t!
+              chpasswd: { expire: False }
+#              ssh_authorized_keys:
+#                - {{ ssh_key_content.content | b64decode }}
+              ssh_pwauth: True
+          name: cloudinitdisk
+
