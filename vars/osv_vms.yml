@@ -10,7 +10,7 @@ vm_cpu_cores: 8                  # Number of virtual CPU cores
 
 dns_server: "192.168.1.210"                  # IP Address of dns server
 dns_search_domain: "redhat.local"
-network_cidr: "19.168.2.0/24" # Your specified subnet
+network_cidr: "192.168.2.0/24" # Your specified subnet
 ip_start_octet: 51           # Starting IP will be X.X.X.51
 vm_ip_gateway: "192.168.2.1"  # Replace with your actual gateway IP
 
