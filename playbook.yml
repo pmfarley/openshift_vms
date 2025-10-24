@@ -1,26 +1,20 @@
 ---
-
 - name: Provision 100 OpenShift Virtualization VMs using Template
   hosts: localhost
   connection: local
-  gather_facts: no
+  gather_facts: false
   vars_files:
     - vars/osv_vms.yml
 
   tasks:
-    - name: Generate VM name list
+    - name: Generate VM name list 
       set_fact:
-        vm_names: >-
-          {{ query(
-              'ansible.builtin.sequence',
-              'start=' ~ (vm_start_index | string),
-              'count=' ~ (vm_count | string),
-              'format=' ~ (vm_prefix ~ '-%0' ~ (vm_padding | string) ~ 'd')
-          ) }}
+        vm_names: "{{ lookup('sequence', 'start=' ~ vm_start_index ~ ' end=' ~ (vm_start_index | int + vm_count | int - 1) ~ ' format=' ~ vm_prefix ~ '-%0' ~ vm_padding ~ 'd', wantlist=True) }}"
 
-    - name: Show generated VM names
+
+    - name: Debug the type and content
       debug:
-        var: vm_names
+       var: vm_names
 
 #    - name: Fail if KUBECONFIG is not set
 #      ansible.builtin.assert:
