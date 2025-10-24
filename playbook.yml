@@ -1,4 +1,5 @@
 ---
+
 - name: Provision 100 OpenShift Virtualization VMs using Template
   hosts: localhost
   connection: local
@@ -7,6 +8,20 @@
     - vars/osv_vms.yml
 
   tasks:
+    - name: Generate VM name list
+      set_fact:
+        vm_names: >-
+          {{ query(
+              'ansible.builtin.sequence',
+              'start=' ~ (vm_start_index | string),
+              'count=' ~ (vm_count | string),
+              'format=' ~ (vm_prefix ~ '-%0' ~ (vm_padding | string) ~ 'd')
+          ) }}
+
+    - name: Show generated VM names
+      debug:
+        var: vm_names
+
 #    - name: Fail if KUBECONFIG is not set
 #      ansible.builtin.assert:
 #        that:
@@ -14,30 +29,25 @@
 #        fail_msg: "Environment variable KUBECONFIG must be set for kubernetes.core.k8s to authenticate."
 #      run_once: true
 
-#    - name: Read SSH Public Key for Cloud-Init
-#      ansible.builtin.slurp:
-#        src: "{{ cloud_init_pubkey_path }}"
-#      register: ssh_key_content
-#      run_once: true
-
     - name: Create Multiple OpenShift Virtual Machines from Template
       kubernetes.core.k8s:
         state: present
         namespace: "{{ ocp_namespace }}"
-        # Deploy the manifest using the template lookup
         definition: "{{ lookup('template', 'templates/vm-manifest.yml.j2') }}"
       loop: "{{ vm_names }}"
       loop_control:
         loop_var: item
-        # Use an index to calculate the IP address
         index_var: vm_index
       vars:
-        # Calculate the IP address for the current VM based on its index:
-        # 1. Get the starting IP base (e.g., 10.6.121.51/32)
-        # 2. Add the current loop index (0 to 99) to the address
-        # 3. Append the correct CIDR mask (/23)
-        current_vm_ip: >
-          {{ network_cidr | ipaddr('host') | ipaddr(ip_start_octet + vm_index) ~ '/' ~ network_cidr | ipaddr('prefix') }}
+        # 0-based vm_index from loop_control is perfect for offsets
+        current_vm_ip: >-
+          {{
+            (
+              (network_cidr | ansible.utils.ipaddr('network') | ansible.utils.ipaddr('address'))
+              | ansible.utils.ipmath(ip_start_octet + vm_index)
+            )
+            ~ '/' ~ (network_cidr | ansible.utils.ipaddr('prefix'))
+          }}
       register: ocv_vm_deploy_results
       # RECOMMENDED: Control concurrency to avoid overwhelming the API server
       # Run 5 deployments concurrently

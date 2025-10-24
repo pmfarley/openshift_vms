@@ -2,21 +2,21 @@
 ocp_namespace: "cdppvcbase" 
 
 # VM Definition Defaults
-vm_template_name: "rhel9-large" # Name of an existing VM Template or DataVolume
+#vm_template_name: "rhel9-large" # Name of an existing VM Template or DataVolume
 vm_storage_class: "ocs-storagecluster-ceph-rbd" # Storage Class for the boot disk
-vm_network_name: "default"       # The network interface name (usually 'default')
+#vm_network_name: "default"       # The network interface name (usually 'default')
 vm_memory: "32Gi"                 # VM Memory (e.g., 1Gi, 4Gi)
 vm_cpu_cores: 8                  # Number of virtual CPU cores
 
-dns_server: "192.168.1.210"                  # IP Address of dns server
-dns_search_domain: "redhat.local"
-network_cidr: "192.168.2.0/24" # Your specified subnet
-ip_start_octet: 51           # Starting IP will be X.X.X.51
-vm_ip_gateway: "192.168.2.1"  # Replace with your actual gateway IP
+#dns_server: "192.168.1.210"                  # IP Address of dns server
+#dns_search_domain: "redhat.local"
+#network_cidr: "192.168.2.0/24" # Your specified subnet
+#ip_start_octet: 51           # Starting IP will be X.X.X.51
+#vm_ip_gateway: "192.168.2.1"  # Replace with your actual gateway IP
 
 # Cloud-Init for VM Configuration
 cloud_init_user: "cloud-user"
-cloud_init_pubkey_path: "~/.ssh/id_rsa.pub" # Path to your SSH public key
+#cloud_init_pubkey_path: "~/.ssh/id_rsa.pub" # Path to your SSH public key
 
 # Variables for the 100 VMs
 vm_prefix: "pvcbase-worker"
@@ -25,4 +25,12 @@ vm_start_index: 1
 vm_padding: 2 
 
 # List of 100 VM names generated: pvcbase-worker-01, pvcbase-02, ..., pvcbase-20
-vm_names: "{{ lookup('sequence', start=vm_start_index, end=vm_count, format=vm_prefix ~ '-%0' ~ vm_padding ~ 'd') }}"
+#vm_names: "{{ lookup('sequence', start=vm_start_index, end=vm_count, format=vm_prefix ~ '-%0' ~ vm_padding ~ 'd') }}"
+
+vm_names: >-
+  {{ query(
+      'ansible.builtin.sequence',
+      'start=' ~ vm_start_index,
+      'end=' ~ (vm_start_index + vm_count - 1),
+      'format=' ~ vm_prefix ~ '-%0' ~ vm_padding ~ 'd'
+  ) }}

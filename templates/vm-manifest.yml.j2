@@ -112,7 +112,7 @@ spec:
       spec:
         sourceRef:
           kind: DataSource
-          name: rhel9 # {{ vm_template_name }}" # Source template name
+          name: rhel9 # Source template name
           namespace: openshift-virtualization-os-images
         storage:
           resources:
@@ -165,7 +165,6 @@ spec:
         memory:
           guest: {{ vm_memory }}
         resources: {}
-      # hostname: {{ item }}
       networks:
         - multus:
             networkName: default/localnet-network
@@ -176,23 +175,11 @@ spec:
             name: {{ item }}-dv
           name: rootdisk
         - cloudInitNoCloud:
-            networkData: |
-              ethernets:
-                eth0:
-                  addresses:
-                    - {{ current_vm_ip }}
-                  gateway4: {{ vm_ip_gateway }}
-                  nameservers:
-                    search: [{{ dns_search_domain }}]
-                    addresses: [{{ dns_server }}] 
-              version: 2
             userData: |-
               #cloud-config
               user: {{ cloud_init_user }}
               password: r3dh4t!
               chpasswd: { expire: False }
-#              ssh_authorized_keys:
-#                - {{ ssh_key_content.content | b64decode }}
               ssh_pwauth: True
           name: cloudinitdisk
 
