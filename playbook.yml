@@ -6,7 +6,7 @@
   vars_files:
     - vars/osv_vms.yml
 
-#  tasks:
+  tasks:
 #    - name: Fail if KUBECONFIG is not set
 #      ansible.builtin.assert:
 #        that:
