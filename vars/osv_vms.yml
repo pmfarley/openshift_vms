@@ -25,4 +25,4 @@ vm_start_index: 1
 vm_padding: 2 
 
 # List of 100 VM names generated: pvcbase-worker-01, pvcbase-02, ..., pvcbase-20
-vm_names: "{{ lookup('sequence', start=vm_start_index, end=vm_count, format=vm_prefix ~ '-%0' ~ vm_padding ~ 'd') }}":
+vm_names: "{{ lookup('sequence', start=vm_start_index, end=vm_count, format=vm_prefix ~ '-%0' ~ vm_padding ~ 'd') }}"
