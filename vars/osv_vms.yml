@@ -1,30 +1,28 @@
 # OpenShift Target Project/Namespace
-ocp_namespace: "cdppvcbase" 
+ocp_namespace: "cdppvcbase"                     # Name of Project to create VMs
 
 # VM Definition Defaults
-#vm_template_name: "rhel9-large" # Name of an existing VM Template or DataVolume
+#vm_template_name: "rhel9-large"                # Name of an existing VM Template or DataVolume
 vm_storage_class: "ocs-storagecluster-ceph-rbd" # Storage Class for the boot disk
-#vm_network_name: "default"       # The network interface name (usually 'default')
-vm_memory: "32Gi"                 # VM Memory (e.g., 1Gi, 4Gi)
-vm_cpu_cores: 8                  # Number of virtual CPU cores
+vm_memory: "32Gi"                               # VM Memory (e.g., 1Gi, 4Gi)
+vm_cpu_cores: 8                                 # Number of virtual CPU cores
 
-#dns_server: "192.168.1.210"                  # IP Address of dns server
-#dns_search_domain: "redhat.local"
-#network_cidr: "192.168.2.0/24" # Your specified subnet
-#ip_start_octet: 51           # Starting IP will be X.X.X.51
-#vm_ip_gateway: "192.168.2.1"  # Replace with your actual gateway IP
+dns_server: "192.168.1.210"                     # IP Address of DNS server
+dns_search_domain: "redhat.local"               # DNS search domain
+
+vm_ip_gateway: "192.168.2.1"                    # Replace with your actual gateway IP
+vm_ip_prefix: "192.168.2"                       # Your specified subnet
+vm_ip_base: "192.168.2"
+vm_ip_start: 51                                 # Starting IP will be X.X.X.51
+
 
 # Cloud-Init for VM Configuration
-cloud_init_user: "cloud-user"
-#cloud_init_pubkey_path: "~/.ssh/id_rsa.pub" # Path to your SSH public key
+cloud_init_user: "cloud-user"                   # Username to create
+#cloud_init_pubkey_path: "~/.ssh/id_rsa.pub"    # Path to your SSH public key
 
 # Variables for the VMs
-vm_prefix: "pvcbase-worker"
-vm_count: 20
-vm_start_index: 1
-vm_padding: 2
-
-vm_ip_prefix: "192.168.2"  
-vm_ip_base: "192.168.2"
-vm_ip_start: 51 
+vm_prefix: "pvcbase-worker"                     # VM name prefix, will create name: pvcbase-workerXX
+vm_count: 20                                    # Quantity of VMs to create
+vm_start_index: 1                               # starting number
+vm_padding: 2                                   # Number of digits to assign to number 
 
