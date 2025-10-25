@@ -44,9 +44,17 @@
 #      loop: "{{ vm_ip_assignments }}"
 #      loop_control:
 #        loop_var: vm_assignment
+
+#      loop: "{{ vm_names }}"
+#      loop_control:
+#        loop_var: vm_name
+
       loop: "{{ vm_names }}"
       loop_control:
         loop_var: vm_name
+        index_var: vm_index
+      vars:
+        vm_ip_address: "{{ vm_ip_base }}.{{ vm_ip_start + vm_index }}/24"
 
       register: ocv_vm_deploy_results
       # RECOMMENDED: Control concurrency to avoid overwhelming the API server

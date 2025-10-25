@@ -185,7 +185,7 @@ spec:
               ethernets:
                 eth0:
                   addresses:
-                    - {{ vm_assignment.ip }}
+                    - {{ vm_ip_address }}
                   gateway4: {{ vm_ip_gateway }}
                   nameservers:
                     search: [{{ dns_search_domain }}]
