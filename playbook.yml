@@ -7,6 +7,13 @@
     - vars/osv_vms.yml
 
   tasks:
+#    - name: Fail if KUBECONFIG is not set
+#      ansible.builtin.assert:
+#        that:
+#          - ansible_env.KUBECONFIG is defined
+#        fail_msg: "Environment variable KUBECONFIG must be set for kubernetes.core.k8s to authenticate."
+#      run_once: true
+
     - name: Generate VM name list 
       set_fact:
         vm_names: "{{ lookup('sequence', 'start=' ~ vm_start_index ~ ' end=' ~ (vm_start_index | int + vm_count | int - 1) ~ ' format=' ~ vm_prefix ~ '%0' ~ vm_padding ~ 'd', wantlist=True) }}"
@@ -22,12 +29,13 @@
       debug:
        var: vm_names
 
-#    - name: Fail if KUBECONFIG is not set
-#      ansible.builtin.assert:
-#        that:
-#          - ansible_env.KUBECONFIG is defined
-#        fail_msg: "Environment variable KUBECONFIG must be set for kubernetes.core.k8s to authenticate."
-#      run_once: true
+    - name: Show VM IP assignments
+      debug:
+        msg: "{{ vm_name }} will be assigned IP: {{ vm_ip_base }}.{{ vm_ip_start + vm_index }}/23"
+      loop: "{{ vm_names }}"
+      loop_control:
+        loop_var: vm_name
+        index_var: vm_index
 
     - name: Create Multiple OpenShift Virtual Machines from Template
       kubernetes.core.k8s:
