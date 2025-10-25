@@ -1,5 +1,5 @@
 ---
-- name: Provision 100 OpenShift Virtualization VMs using Template
+- name: Provision Multiple OpenShift Virtualization VMs using Template
   hosts: localhost
   connection: local
   gather_facts: false
@@ -31,7 +31,7 @@
 
     - name: Show VM IP assignments
       debug:
-        msg: "{{ vm_name }} will be assigned IP: {{ vm_ip_base }}.{{ vm_ip_start + vm_index }}/23"
+        msg: "{{ vm_name }} will be assigned IP: {{ vm_ip_base }}.{{ vm_ip_start + vm_index }}/24"
       loop: "{{ vm_names }}"
       loop_control:
         loop_var: vm_name
