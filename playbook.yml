@@ -41,9 +41,12 @@
       kubernetes.core.k8s:
         state: present
         template: templates/vm-manifest.yml.j2
-      loop: "{{ vm_ip_assignments }}"
+#      loop: "{{ vm_ip_assignments }}"
+#      loop_control:
+#        loop_var: vm_assignment
+      loop: "{{ vm_names }}"
       loop_control:
-        loop_var: vm_assignment
+        loop_var: vm_name
 
       register: ocv_vm_deploy_results
       # RECOMMENDED: Control concurrency to avoid overwhelming the API server
