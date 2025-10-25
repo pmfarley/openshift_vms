@@ -18,17 +18,6 @@
       set_fact:
         vm_names: "{{ lookup('sequence', 'start=' ~ vm_start_index ~ ' end=' ~ (vm_start_index | int + vm_count | int - 1) ~ ' format=' ~ vm_prefix ~ '%0' ~ vm_padding ~ 'd', wantlist=True) }}"
 
-    - name: Generate VM IP assignments
-      set_fact:
-        vm_ip_assignments: "{{ vm_ip_assignments | default([]) + [{'name': item, 'ip': vm_ip_base ~ '.' ~ (vm_ip_start + index) ~ '/24'}] }}"
-      loop: "{{ vm_names }}"
-      loop_control:
-        index_var: index
-
-    - name: Debug the type and content
-      debug:
-       var: vm_names
-
     - name: Show VM IP assignments
       debug:
         msg: "{{ vm_name }} will be assigned IP: {{ vm_ip_base }}.{{ vm_ip_start + vm_index }}/24"
@@ -41,14 +30,6 @@
       kubernetes.core.k8s:
         state: present
         template: templates/vm-manifest.yml.j2
-#      loop: "{{ vm_ip_assignments }}"
-#      loop_control:
-#        loop_var: vm_assignment
-
-#      loop: "{{ vm_names }}"
-#      loop_control:
-#        loop_var: vm_name
-
       loop: "{{ vm_names }}"
       loop_control:
         loop_var: vm_name
@@ -64,8 +45,8 @@
       # Or, to run a block of 5, wait for them, then run the next block of 5:
       # serial: 5 
 
-    - name: Display VM Creation Status
-      ansible.builtin.debug:
-        msg: "Started creation of VM '{{ item.item }}' (Changed: {{ item.changed }})"
-      loop: "{{ ocv_vm_deploy_results.results }}"
-      when: item.changed
+#    - name: Display VM Creation Status
+#      ansible.builtin.debug:
+#        msg: "Started creation of VM '{{ item.item }}' (Changed: {{ item.changed }})"
+#      loop: "{{ ocv_vm_deploy_results.results }}"
+#      when: item.changed
