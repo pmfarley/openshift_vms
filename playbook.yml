@@ -11,6 +11,13 @@
       set_fact:
         vm_names: "{{ lookup('sequence', 'start=' ~ vm_start_index ~ ' end=' ~ (vm_start_index | int + vm_count | int - 1) ~ ' format=' ~ vm_prefix ~ '%0' ~ vm_padding ~ 'd', wantlist=True) }}"
 
+    - name: Generate VM IP assignments
+      set_fact:
+        vm_ip_assignments: "{{ vm_ip_assignments | default([]) + [{'name': item, 'ip': vm_ip_base ~ '.' ~ (vm_ip_start + index) ~ '/24'}] }}"
+      loop: "{{ vm_names }}"
+      loop_control:
+        index_var: index
+
     - name: Debug the type and content
       debug:
        var: vm_names
