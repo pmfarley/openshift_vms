@@ -16,7 +16,7 @@ metadata:
   creationTimestamp: '2025-10-23T17:39:45Z'
   generation: 1
   labels:
-    app: {{ vm_assignment }}
+    app: {{ item }}
     kubevirt.io/dynamic-credentials-support: 'true'
     vm.kubevirt.io/template: rhel9-server-large
     vm.kubevirt.io/template.namespace: openshift
@@ -98,7 +98,7 @@ metadata:
       manager: kubectl-create
       operation: Update
       time: '2025-10-23T17:39:45Z'
-  name: {{ vm_assignment }}
+  name: {{ item }}
   namespace: {{ ocp_namespace }}
   uid: 5836ff43-2ef8-486f-b20a-a9efa676f64a
 spec:
@@ -107,7 +107,7 @@ spec:
       kind: DataVolume
       metadata:
         creationTimestamp: null
-        name: {{ vm_assignment }}-dv
+        name: {{ item }}-dv
       spec:
       spec:
         sourceRef:
@@ -128,7 +128,7 @@ spec:
         vm.kubevirt.io/workload: server
       creationTimestamp: null
       labels:
-        kubevirt.io/domain: {{ vm_assignment }}
+        kubevirt.io/domain: {{ item }}
         kubevirt.io/size: large
     spec:
       architecture: amd64
@@ -172,7 +172,7 @@ spec:
       terminationGracePeriodSeconds: 180
       volumes:
         - dataVolume:
-            name: {{ vm_assignment }}-dv
+            name: {{ item }}-dv
           name: rootdisk
         - cloudInitNoCloud:
             userData: |-
