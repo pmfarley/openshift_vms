@@ -18,19 +18,13 @@ vm_cpu_cores: 8                  # Number of virtual CPU cores
 cloud_init_user: "cloud-user"
 #cloud_init_pubkey_path: "~/.ssh/id_rsa.pub" # Path to your SSH public key
 
-# Variables for the 100 VMs
+# Variables for the VMs
 vm_prefix: "pvcbase-worker"
 vm_count: 20
 vm_start_index: 1
-vm_padding: 2 
+vm_padding: 2
 
-# List of 100 VM names generated: pvcbase-worker-01, pvcbase-02, ..., pvcbase-20
-#vm_names: "{{ lookup('sequence', start=vm_start_index, end=vm_count, format=vm_prefix ~ '-%0' ~ vm_padding ~ 'd') }}"
+vm_ip_prefix: "192.168.2"  
+vm_ip_base: "192.168.2"
+vm_ip_start: 51 
 
-vm_names: >-
-  {{ query(
-      'ansible.builtin.sequence',
-      'start=' ~ vm_start_index,
-      'end=' ~ (vm_start_index + vm_count - 1),
-      'format=' ~ vm_prefix ~ '-%0' ~ vm_padding ~ 'd'
-  ) }}

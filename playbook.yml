@@ -9,8 +9,7 @@
   tasks:
     - name: Generate VM name list 
       set_fact:
-        vm_names: "{{ lookup('sequence', 'start=' ~ vm_start_index ~ ' end=' ~ (vm_start_index | int + vm_count | int - 1) ~ ' format=' ~ vm_prefix ~ '-%0' ~ vm_padding ~ 'd', wantlist=True) }}"
-
+        vm_names: "{{ lookup('sequence', 'start=' ~ vm_start_index ~ ' end=' ~ (vm_start_index | int + vm_count | int - 1) ~ ' format=' ~ vm_prefix ~ '%0' ~ vm_padding ~ 'd', wantlist=True) }}"
 
     - name: Debug the type and content
       debug:
@@ -26,22 +25,13 @@
     - name: Create Multiple OpenShift Virtual Machines from Template
       kubernetes.core.k8s:
         state: present
-        namespace: "{{ ocp_namespace }}"
-        definition: "{{ lookup('template', 'templates/vm-manifest.yml.j2') }}"
+        template: templates/vm-manifest.yml.j2
       loop: "{{ vm_names }}"
       loop_control:
-        loop_var: item
-        index_var: vm_index
+        loop_var: vm_name
       vars:
-        # 0-based vm_index from loop_control is perfect for offsets
-        current_vm_ip: >-
-          {{
-            (
-              (network_cidr | ansible.utils.ipaddr('network') | ansible.utils.ipaddr('address'))
-              | ansible.utils.ipmath(ip_start_octet + vm_index)
-            )
-            ~ '/' ~ (network_cidr | ansible.utils.ipaddr('prefix'))
-          }}
+        vm_ip_address: "{{ vm_ip_base }}.{{ vm_ip_start + vm_index }}/23"
+
       register: ocv_vm_deploy_results
       # RECOMMENDED: Control concurrency to avoid overwhelming the API server
       # Run 5 deployments concurrently
