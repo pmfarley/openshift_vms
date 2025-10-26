@@ -6,14 +6,15 @@ ocp_namespace: "cdppvcbase"                     # Name of Project to create VMs
 vm_storage_class: "ocs-storagecluster-ceph-rbd" # Storage Class for the boot disk
 vm_memory: "32Gi"                               # VM Memory (e.g., 1Gi, 4Gi)
 vm_cpu_cores: 8                                 # Number of virtual CPU cores
+vm_storage: "500Gi"                             # VM Storage (e.g., 30Gi, 500Gi, 1Ti)
 
-dns_server: "192.168.1.210"                     # IP Address of DNS server
-dns_search_domain: "redhat.local"               # DNS search domain
+dns_server: "10.1.59.1"                         # IP Address of DNS server
+dns_search_domain: "rdu2.scalelab.redhat.com"   # DNS search domain
 
-vm_ip_gateway: "192.168.2.1"                    # Replace with your actual gateway IP
-vm_ip_prefix: "192.168.2"                       # Your specified subnet
-vm_ip_base: "192.168.2"
-vm_ip_start: 51                                 # Starting IP will be X.X.X.51
+vm_ip_gateway: "10.1.49.254"                    # Replace with your actual gateway IP
+vm_ip_prefix: "10.1.49"                         # Your specified subnet
+vm_ip_base: "10.1.49"
+vm_ip_start: 100                                 # Starting IP will be X.X.X.100
 
 
 # Cloud-Init for VM Configuration
@@ -22,7 +23,6 @@ cloud_init_user: "cloud-user"                   # Username to create
 
 # Variables for the VMs
 vm_prefix: "pvcbase-worker"                     # VM name prefix, will create name: pvcbase-workerXX
-vm_count: 20                                    # Quantity of VMs to create
+vm_count: 100                                    # Quantity of VMs to create
 vm_start_index: 1                               # starting number
-vm_padding: 2                                   # Number of digits to assign to number 
-
+vm_padding: 2                                   # Number of digits to assign to number
