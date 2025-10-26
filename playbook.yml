@@ -20,7 +20,7 @@
 
     - name: Show VM IP assignments
       debug:
-        msg: "{{ vm_name }} will be assigned IP: {{ vm_ip_base }}.{{ vm_ip_start + vm_index }}/24"
+        msg: "{{ vm_name }} will be assigned IP: {{ vm_ip_base }}.{{ vm_ip_start + vm_index }}/23"
       loop: "{{ vm_names }}"
       loop_control:
         loop_var: vm_name
@@ -35,7 +35,7 @@
         loop_var: vm_name
         index_var: vm_index
       vars:
-        vm_ip_address: "{{ vm_ip_base }}.{{ vm_ip_start + vm_index }}/24"
+        vm_ip_address: "{{ vm_ip_base }}.{{ vm_ip_start + vm_index }}/23"
 
       register: ocv_vm_deploy_results
       # RECOMMENDED: Control concurrency to avoid overwhelming the API server
