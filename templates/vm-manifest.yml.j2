@@ -109,15 +109,14 @@ spec:
         creationTimestamp: null
         name: {{ vm_name }}-dv
       spec:
-      spec:
-        sourceRef:
-          kind: DataSource
-          name: rhel9 # Source template name
-          namespace: openshift-virtualization-os-images
+        source:
+          pvc:
+            name: rhel9.5
+            namespace: cdppvcbase
         storage:
           resources:
             requests:
-              storage: 30Gi
+              storage: {{ vm_storage }}
           storageClassName: {{ vm_storage_class }}
   runStrategy: RerunOnFailure
   template:
@@ -130,7 +129,16 @@ spec:
       labels:
         kubevirt.io/domain: {{ vm_name }}
         kubevirt.io/size: large
+        affinity_group_1: ""        
     spec:
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions:
+              - key: affinity_group_1
+                operator: Exists
+            topologyKey: kubernetes.io/hostname    
       architecture: amd64
       domain:
         cpu:
@@ -165,6 +173,7 @@ spec:
         memory:
           guest: {{ vm_memory }}
         resources: {}
+      # hostname: {{ vm_name }}
       networks:
         - multus:
             networkName: default/localnet-network
@@ -175,12 +184,6 @@ spec:
             name: {{ vm_name }}-dv
           name: rootdisk
         - cloudInitNoCloud:
-            userData: |-
-              #cloud-config
-              user: {{ cloud_init_user }}
-              password: r3dh4t!
-              chpasswd: { expire: False }
-              ssh_pwauth: True
             networkData: |
               ethernets:
                 eth0:
@@ -191,5 +194,13 @@ spec:
                     search: [{{ dns_search_domain }}]
                     addresses: [{{ dns_server }}] 
               version: 2
+            userData: |-
+              #cloud-config
+              user: {{ cloud_init_user }}
+              password: r3dh4t!
+              chpasswd: { expire: False }
+#              ssh_authorized_keys:
+#                - {{ ssh_key_content.content | b64decode }}
+              ssh_pwauth: True
           name: cloudinitdisk
 
